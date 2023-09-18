@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presente para Sofia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+ <!-- Open Graph / Facebook meta tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nicolaasrn.github.io/nicolaasrn/">
+    <meta property="og:title" content="Surpresa para Sofia">
+    <meta property="og:description" content="Presente de 4 meses de namoro, onde contém um poema, uma carta, algumas fotos e vídeo no estilo de galeria, um pequeno quiz e um mapa funcional para marcarmos o local de cada viagem que fazemos">
+    <meta property="og:image" content="felizes_11.jpeg.jpg">
+
+    <style>
+       body {
+
+            font-family: 'Arial', sans-serif;
+            background-color: #fff;
+            color: #9370db; /* Roxo */
+            background-repeat: repeat;
+            background-size: 5%;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        .container {
+    max-width: 800px;
+    margin: -2cm auto 50px;  /* Ajustado para -2cm na margem superior */
+    padding: 20px;
+    position: relative; 
+    z-index: 10;  
+}
+
+
+
+        h1, h2 {
+            text-align: center;
+            color: #20b2aa; /* Verde Água */
+        }
+
+        .timeline {
+            position: relative;
+            list-style: none;
+        }
+
+        .timeline li {
+            margin-bottom: 30px;
+        }
+
+        .event {
+            padding: 10px 20px;
+            background-color: #1E90FF; /* Azul */
+            display: inline-block;
+            border-radius: 8px;
+            margin-left: 60px;
+            color: #ffffff; /* Branco */
+            margin-left: calc(60px + 3cm); /* Adiciona 3cm à margem esquerda existente de 60px */
+        }
+
+        /* Título das seções em negrito */
+        .event strong {
+            font-weight: bold;
+        }
+
+        /* Intercalando as cores de fundo das seções */
+        .timeline li:nth-child(odd) .event {
+            background-color: #1E90FF; /* Azul */
+        }
+
+        .timeline li:nth-child(even) .event {
+            background-color: #9370db; /* Roxo */
+        }
+
+        .event img, .event video {
+            vertical-align: top;
+            margin: 5px;
+            max-width: 150px;
+            border-radius: 8px;
+            transition: transform 0.4s;
+        }
+
+        .event img:hover, .event video:hover {
+            transform: scale(1.1);
+        }
+
+        .event video {
+            max-height: 150px;
+        }
+
+        /* Centralizar a imagem na seção Moda & Compras */
+        .event.centered img {
+            display: block;
+            margin: 5px auto;
+        }
+
+        /* Animação de entrada */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            animation: fadeIn 2s forwards;
+            visibility: hidden;
+        }
+
+        /* Estilo do Quiz */
+        .quiz-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+
+        .options li {
+            margin-bottom: 5px;
+        }
+
+        /* Adicionando estilos para os radio buttons */
+        .options input[type="radio"] {
+            display: none;
+        }
+
+        .options label {
+            display: block;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .options input[type="radio"]:checked + label {
+            background-color: #ddd;
+}
+
+.heart {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: pink;
+    clip-path: polygon(
+        50% 80%,
+        100% 40%,
+        100% 20%,
+        50% 0%,
+        0% 20%,
+        0% 40%
+    );
+    opacity: 0.7;
+    z-index: -1;
+}
+
+.highlight-text {
+    background-color: rgba(255, 255, 255, 0.7); /* Branco com 70% de transparência */
+    padding: 10px;
+    border-radius: 8px;
+    margin: 20px 0;
+    color: #20b2aa; /* Verde Água */
+    text-align: center; /* Alinhar o texto no centro */
+}
+
+.text-section p {
+    color: #20b2aa; /* Verde Água */
+    font-size: 20px;
+}
+
+#playMusicButton {
+    display: block;
+    margin: 2cm auto 1cm; /* Isso irá mover o botão 2cm para baixo */
+}
+
+#map {
+    width: 100%;
+    height: 400px;
+}
+
+/* Adicionando estilo para o layout da carta e da poesia */
+.text-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap; /* Caso os conteúdos sejam grandes e precisem ser envolvidos em linhas separadas */
+    gap: 2rem;
+}
+
+
+/* Estilizando a poesia */
+.poetry {
+    font-style: italic;
+    font-size: 20px; 
+    text-align: center; /* Alinhar a poesia ao centro */
+    margin: 0; /* Remover a margem padrão do parágrafo */
+}
+
+.text-content {
+    background-color: rgba(255, 255, 255, 0.7); /* Branco com 70% de transparência */
+    padding: 10px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+        /* Adicionando Media Queries para responsividade */
+@media (max-width: 768px) {
+    .event img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .event {
+        width: 90%;
+        margin-left: 2%; /* ajuste para mover um pouco para a esquerda */
+    }
+
+    body {
+        font-size: 90%;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    <audio id="backgroundMusic" controls loop style="display:none;">
+    <source src="oltremare.mp3.mp3" type="audio/mpeg">
+    Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <div class="container">
+    <button id="playMusicButton" onclick="playMusic()">Clique para tocar música</button>
+
+    <!-- Seção da Carta -->
+    <div class="text-section text-content"> <!-- Aqui! -->
+    <h1 class="highlight-text">Egestas maecenas pharetra convallis</h1>
+    <p>Libero volutpat,</p>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet porttitor eget dolor morbi non arcu risus quis. Ullamcorper dignissim cras tincidunt lobortis. Sit amet consectetur adipiscing elit pellentesque habitant. Eu turpis egestas pretium aenean pharetra</p>
+
+    <p>Elit ut aliquam purus sit amet. Vulputate mi sit amet mauris commodo quis imperdiet massa. Placerat duis ultricies lacus sed turpis tincidunt. Pretium vulputate sapien nec sagittis aliquam malesuada. Feugiat vivamus at augue eget arcu. Sagittis orci a scelerisque purus semper eget duis.</p>
+
+    <p>Semper viverra nam libero justo laoreet sit amet cursus sit. Nibh sed pulvinar proin gravida hendrerit lectus a. In metus vulputate eu scelerisque felis imperdiet proin fermentum leo. In metus vulputate eu scelerisque. Mi bibendum neque egestas congue quisque egestas diam in.</p>
+
+    <p>Cras ornare arcu dui vivamus arcu felis bibendum ut tristique. Auctor neque vitae tempus quam pellentesque nec. Accumsan lacus vel facilisis volutpat est velit egestas dui id.</p>
+  
+    </div>
+
+
+    <!-- Seção da Poesia -->
+    <div class="text-section text-content"> <!-- E aqui! -->
+        <h1 class="highlight-text">Commodo nulla facilisi</h1>
+        <p class="poetry">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod, <br>
+                    Tempor incididunt ut labore et dolore magna aliqua, <br>
+                    Id porta nibh venenatis cras sed felis eget velit aliquet, <br>
+                    Sapien eget mi proin sed libero enim sed faucibus turpis. <br>
+                    <br>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod, <br>
+                    Tempor incididunt ut labore et dolore magna aliqua, <br>
+                    Id porta nibh venenatis cras sed felis eget velit aliquet, <br>
+                    Sapien eget mi proin sed libero enim sed faucibus turpis. <br>
+                    <br>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod, <br>
+                    Tempor incididunt ut labore et dolore magna aliqua, <br>
+                    Id porta nibh venenatis cras sed felis eget velit aliquet, <br>
+                    Sapien eget mi proin sed libero enim sed faucibus turpis. <br>
+                    <br>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod, <br>
+                    Tempor incididunt ut labore et dolore magna aliqua, <br>
+                    Id porta nibh venenatis cras sed felis eget velit aliquet, <br>
+                    Sapien eget mi proin sed libero enim sed faucibus turpis. <br>
+                </p>
+        </div>
+
+    <h2 class="highlight-text">At volutpat diam...</h2>
+         <ul class="timeline">
+            <li>
+                <div class="event hidden">
+                    <strong>sagittis purus sit amet volutpat</strong><br>
+                    <img src="namoro_2.jpeg.jpg" alt="Descrição da imagem 1a">
+                    <img src="namoro_1.jpeg.jpg" alt="Descrição da imagem 1b">
+                </div>
+            </li>
+            <li>
+                <div class="event hidden">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="xadrez_2.jpeg.jpg" alt="Descrição da imagem 2a">
+                    <img src="xadrez_1.jpeg.jpg" alt="Descrição da imagem 2b">
+                </div>
+            </li>
+            <li>
+                <div class="event hidden">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="jantar_1.jpeg.jpg" alt="Descrição da imagem 3a">
+                    <img src="jantar_2.jpeg.jpg" alt="Descrição da imagem 3b">
+                    <video controls>
+                        <source src="jantar_3.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </li>
+            <li>
+                <div class="event hidden">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="viagem_1.jpeg.jpg" alt="Descrição da imagem 4a">
+                    <img src="viagem_2.jpeg.jpg" alt="Descrição da imagem 4b">
+                </div>
+            </li>
+            <li>
+                <div class="event hidden centered">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="compras.jpeg.jpg" alt="Descrição da imagem 5d">
+                </div>
+            </li>
+            <li>
+                <div class="event hidden">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="japa_1.jpeg.jpg" alt="Descrição da imagem 6a">
+                    <img src="japa_2.jpeg.jpg" alt="Descrição da imagem 6b">
+                    <img src="japa_3.jpeg.jpg" alt="Descrição da imagem 6c">
+                    <img src="japa_4.jpeg.jpg" alt="Descrição da imagem 6d">
+                </div>
+            </li>
+            <li>
+                <div class="event hidden">
+                    <strong>Sagittis purus sit amet volutpat</strong><br>
+                    <img src="felizes.jpeg.jpg" alt="Descrição da imagem 7a">
+                    <img src="felizes_2.jpeg.jpg" alt="Descrição da imagem 7b">
+                    <img src="felizes_3.jpeg.jpg" alt="Descrição da imagem 7c">
+                    <img src="felizes_4.jpeg.jpg" alt="Descrição da imagem 7d">
+                    <img src="felizes_5.jpeg.jpg" alt="Descrição da imagem 7e">
+                    <img src="felizes_6.jpeg.jpg" alt="Descrição da imagem 7f">
+                    <img src="felizes_7.jpeg.jpg" alt="Descrição da imagem 7g">
+                    <img src="felizes_8.jpeg.jpg" alt="Descrição da imagem 7h">
+                    <img src="felizes_9.jpeg.jpg" alt="Descrição da imagem 7i">
+                    <img src="felizes_10.jpeg.jpg" alt="Descrição da imagem 7j">
+                    <img src="felizes_11.jpeg.jpg" alt="Descrição da imagem 7j">
+                </div>
+            </li>
+
+            <!-- Adicionando o quiz no final -->
+            <li>
+                <div class="quiz-container">
+                    <h2>Egestas integer eget aliquet nibh?</h2>
+                    <div class="question">1. Tortor posuere ac ut consequat?</div>
+<ul class="options">
+    <li><input type="radio" name="q1" id="q1a" data-answer="false"><label for="q1a">Felis eget</label></li>
+    <li><input type="radio" name="q1" id="q1b" data-answer="true"><label for="q1b">Felis eget</label></li>
+    <li><input type="radio" name="q1" id="q1c" data-answer="false"><label for="q1c">Felis eget</label></li>
+    <li><input type="radio" name="q1" id="q1d" data-answer="false"><label for="q1d">Felis eget</label></li>
+</ul>
+
+<div class="question">2. Tortor posuere ac ut consequat?</div>
+<ul class="options">
+    <li><input type="radio" name="q2" id="q2a" data-answer="false"><label for="q2a">Felis eget</label></li>
+    <li><input type="radio" name="q2" id="q2b" data-answer="false"><label for="q2b">Felis eget</label></li>
+    <li><input type="radio" name="q2" id="q2c" data-answer="true"><label for="q2c">Felis eget</label></li>
+    <li><input type="radio" name="q2" id="q2d" data-answer="false"><label for="q2d">Felis eget</label></li>
+</ul>
+
+<div class="question">3. Tortor posuere ac ut consequat?</div>
+<ul class="options">
+    <li><input type="radio" name="q3" id="q3a" data-answer="false"><label for="q3a">Felis eget</label></li>
+    <li><input type="radio" name="q3" id="q3b" data-answer="true"><label for="q3b">Felis eget</label></li>
+    <li><input type="radio" name="q3" id="q3c" data-answer="false"><label for="q3c">Felis eget</label></li>
+    <li><input type="radio" name="q3" id="q3d" data-answer="false"><label for="q3d">Felis eget</label></li>
+</ul>
+
+<div class="question">4. Tortor posuere ac ut consequat?</div>
+<ul class="options">
+    <li><input type="radio" name="q4" id="q4a" data-answer="true"><label for="q4a">Felis eget</label></li>
+    <li><input type="radio" name="q4" id="q4b" data-answer="false"><label for="q4b">Felis eget</label></li>
+    <li><input type="radio" name="q4" id="q4c" data-answer="false"><label for="q4c">Felis eget</label></li>
+    <li><input type="radio" name="q4" id="q4d" data-answer="false"><label for="q4d">Felis eget</label></li>
+</ul>
+
+<div class="question">5. Tortor posuere ac ut consequat?</div>
+<ul class="options">
+    <li><input type="radio" name="q5" id="q5a" data-answer="false"><label for="q5a">Felis eget</label></li>
+    <li><input type="radio" name="q5" id="q5b" data-answer="false"><label for="q5b">Felis eget/label></li>
+    <li><input type="radio" name="q5" id="q5c" data-answer="true"><label for="q5c">Felis eget</label></li>
+    <li><input type="radio" name="q5" id="q5d" data-answer="false"><label for="q5d">Felis eget</label></li>
+</ul>
+
+                    <button onclick="checkAnswers()">Verificar Respostas</button>
+                </div>
+            </li>
+        </ul>
+        <h2 class="highlight-text" style="margin-top: 1cm;">Eu tincidunt</h2>
+
+        <div id="map" style="margin-top: 1cm;"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    createHearts();
+    setTimeout(revealEvent, 1000);
+    initMap();
+    loadMarkers();
+});
+
+let map;  // Variável global para o mapa
+
+const events = document.querySelectorAll('.event');
+let index = 0;
+
+function revealEvent() {
+    if (index < events.length) {
+        events[index].style.visibility = 'visible';
+        index++;
+        setTimeout(revealEvent, 1500); 
+    }
+}
+
+function checkAnswers() {
+    const options = document.querySelectorAll('.options input[type="radio"]');
+    let correctCount = 0;
+
+    options.forEach(opt => {
+        if(opt.checked && opt.getAttribute('data-answer') === 'true') {
+            opt.nextElementSibling.style.backgroundColor = '#00FF00';  // Verde para correto
+            correctCount++;
+        } else if (opt.checked) {
+            opt.nextElementSibling.style.backgroundColor = '#FF0000';  // Vermelho para incorreto
+        }
+    });
+
+    alert(`Você acertou ${correctCount} de 5 perguntas!`);
+}
+
+function createHearts() {
+    const heartCount = 270;
+
+    for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * (document.documentElement.scrollHeight + 35);
+        
+        heart.style.left = posX + 'px';
+        heart.style.top = posY + 'px';
+        
+        document.body.appendChild(heart);
+    }
+}
+
+function playMusic() {
+    const music = document.getElementById("backgroundMusic");
+    if (music.paused) {
+        music.play();
+    } else {
+        music.pause();
+    }
+}
+
+function initMap() {
+    map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+    
+    map.on('click', addMarker);
+}
+
+function addMarker(event) {
+    const marker = L.marker([event.latlng.lat, event.latlng.lng], {
+        title: "Clique para remover"
+    }).addTo(map).on('click', removeMarker);
+    
+    updateLocalStorage(event.latlng.lat, event.latlng.lng);
+}
+
+function loadMarkers() {
+    const savedMarkers = JSON.parse(localStorage.getItem('markers'));
+    
+    if(savedMarkers) {
+        savedMarkers.forEach(coord => {
+            if(coord[0] && coord[1]) {
+                L.marker([coord[0], coord[1]], {title: "Clique para remover"}).addTo(map).on('click', removeMarker);
+            }
+        });
+    }
+}
+
+function removeMarker(event) {
+    const markerToRemove = event.target;
+    map.removeLayer(markerToRemove);
+
+    const savedMarkers = JSON.parse(localStorage.getItem('markers'));
+    const index = savedMarkers.findIndex(m => 
+        m[0] === markerToRemove.getLatLng().lat && m[1] === markerToRemove.getLatLng().lng
+    );
+    
+    if(index !== -1) {
+        savedMarkers.splice(index, 1);
+        localStorage.setItem('markers', JSON.stringify(savedMarkers));
+    }
+}
+
+function updateLocalStorage(lat, lng) {
+    let savedMarkers = JSON.parse(localStorage.getItem('markers'));
+    if(!savedMarkers) {
+        savedMarkers = [];
+    }
+    savedMarkers.push([lat, lng]);
+    localStorage.setItem('markers', JSON.stringify(savedMarkers));
+}
+
+
+
+
+
+    </script>
+    </div>
+</body>
+
+</html>
